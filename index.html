@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        /* style.css content starts here */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #000;
+            /* Black background */
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            overflow: hidden;
+            /* Hide potential scrollbars */
+        }
+
+        .calculator-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #000;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            /* Glowing effect */
+        }
+
+        .calculator-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #fff;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .calculator {
+            background-color: #222;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 300px;
+        }
+
+        .calculator-display {
+            width: calc(100% - 20px);
+            background-color: #1a1a1a;
+            border: none;
+            color: #0f0;
+            /* Green text for display */
+            font-size: 2.5em;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            text-align: right;
+            outline: none;
+            box-shadow: inset 0 0 5px rgba(0, 255, 0, 0.5);
+            overflow-x: auto;
+            /* Allow horizontal scrolling for long numbers */
+            white-space: nowrap;
+            /* Prevent wrapping */
+        }
+
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 20px;
+            font-size: 1.5em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .button:hover {
+            background-color: #555;
+            transform: translateY(-2px);
+        }
+
+        .button:active {
+            background-color: #666;
+            transform: translateY(0);
+        }
+
+        .ac {
+            background-color: #d9534f;
+            /* Red for AC */
+        }
+
+        .ac:hover {
+            background-color: #c9302c;
+        }
+
+        .del {
+            background-color: #f0ad4e;
+            /* Orange for DEL */
+        }
+
+        .del:hover {
+            background-color: #ec971f;
+        }
+
+        .operator {
+            background-color: #4CAF50;
+            /* Green for operators */
+        }
+
+        .operator:hover {
+            background-color: #45a049;
+        }
+
+        .equals {
+            background-color: #007bff;
+            /* Blue for equals */
+            grid-column: span 1;
+            /* Adjust if you want it wider like in the image */
+        }
+
+        .equals:hover {
+            background-color: #0056b3;
+        }
+
+        .func {
+            background-color: #8e44ad;
+            /* Purple for function buttons */
+        }
+
+        .func:hover {
+            background-color: #9b59b6;
+        }
+
+        .footer-image {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* style.css content ends here */
+    </style>
+</head>
+
+<body>
+    <div class="calculator-container">
+        <div class="calculator-title">CALCULATOR &#128522;</div>
+        <div class="calculator">
+            <input type="text" id="display" class="calculator-display" value="0" readonly>
+            <div class="calculator-buttons">
+                <button class="button ac" onclick="clearDisplay()">AC</button>
+                <button class="button del" onclick="deleteLastChar()">DEL</button>
+                <button class="button operator" onclick="appendOperator('%')">%</button>
+                <button class="button operator" onclick="appendOperator('/')">/</button>
+
+                <button class="button number" onclick="appendNumber('7')">7</button>
+                <button class="button number" onclick="appendNumber('8')">8</button>
+                <button class="button number" onclick="appendNumber('9')">9</button>
+                <button class="button operator" onclick="appendOperator('*')">*</button>
+
+                <button class="button number" onclick="appendNumber('4')">4</button>
+                <button class="button number" onclick="appendNumber('5')">5</button>
+                <button class="button number" onclick="appendNumber('6')">6</button>
+                <button class="button operator" onclick="appendOperator('-')">-</button>
+
+                <button class="button number" onclick="appendNumber('1')">1</button>
+                <button class="button number" onclick="appendNumber('2')">2</button>
+                <button class="button number" onclick="appendNumber('3')">3</button>
+                <button class="button operator" onclick="appendOperator('+')">+</button>
+
+                <button class="button number" onclick="toggleSign()">&#177;</button>
+                <button class="button number" onclick="appendNumber('0')">0</button>
+                <button class="button number" onclick="appendDecimal('.')">.</button>
+                <button class="button equals" onclick="calculateResult()">=</button>
+
+                <button class="button func" onclick="calculateLog10()">log</button>
+                <button class="button func" onclick="calculateSquare()">x&sup2;</button>
+                <button class="button func" onclick="calculateCubic()">x&sup3;</button>
+                <button class="button func" style="background-color: #34495e;">OFF</button>
+            </div>
+        </div>
+        <div class="footer-image">
+            <img src="https://i.ibb.co/3rJ5FpP/skeleton-hands.png" alt="Skeleton Hands" style="width: 150px;">
+        </div>
+    </div>
+    <script>
+        /* script.js content starts here */
+        let currentInput = '0';
+        let operator = null;
+        let previousInput = '';
+        let shouldResetDisplay = false;
+
+        const display = document.getElementById('display');
+
+        function updateDisplay() {
+            display.value = currentInput;
+        }
+
+        function appendNumber(number) {
+            if (shouldResetDisplay) {
+                currentInput = number;
+                shouldResetDisplay = false;
+            } else {
+                if (currentInput === '0' && number !== '.') {
+                    currentInput = number;
+                } else {
+                    currentInput += number;
+                }
+            }
+            updateDisplay();
+        }
+
+        function appendDecimal(dot) {
+            if (shouldResetDisplay) {
+                currentInput = '0.';
+                shouldResetDisplay = false;
+            } else if (!currentInput.includes(dot)) {
+                currentInput += dot;
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (operator && !shouldResetDisplay) {
+                calculateResult();
+            }
+            previousInput = currentInput;
+            operator = op;
+            shouldResetDisplay = true;
+            display.value = currentInput + ' ' + operator; // Show operation on display
+        }
+
+        function calculateResult() {
+            if (!operator || shouldResetDisplay) return;
+
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+
+            if (isNaN(prev) || isNaN(current)) {
+                currentInput = 'Error';
+                updateDisplay();
+                resetCalculator();
+                return;
+            }
+
+            switch (operator) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        currentInput = 'Error: Division by zero';
+                        updateDisplay();
+                        resetCalculator();
+                        return;
+                    }
+                    result = prev / current;
+                    break;
+                case '%':
+                    result = prev % current;
+                    break;
+                default:
+                    return;
+            }
+
+            currentInput = result.toString();
+            operator = null;
+            previousInput = '';
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            operator = null;
+            previousInput = '';
+            shouldResetDisplay = false;
+            updateDisplay();
+        }
+
+        function deleteLastChar() {
+            if (shouldResetDisplay) {
+                clearDisplay();
+                return;
+            }
+            currentInput = currentInput.slice(0, -1);
+            if (currentInput === '') {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        function toggleSign() {
+            currentInput = (parseFloat(currentInput) * -1).toString();
+            updateDisplay();
+        }
+
+        function resetCalculator() {
+            currentInput = '0';
+            operator = null;
+            previousInput = '';
+            shouldResetDisplay = false;
+        }
+
+        // Initial display update
+        updateDisplay();
+
+
+        // --- Advanced Functions (for log, square, cubic) ---
+
+        // Logarithm (base 10)
+        function calculateLog10() {
+            const num = parseFloat(currentInput);
+            if (isNaN(num)) {
+                currentInput = 'Error: Invalid Input';
+            } else if (num < 0) { // Log of negative numbers is complex/undefined in real numbers
+                currentInput = 'Error: Log of negative number';
+            } else if (num === 0) { // Log of zero is undefined
+                currentInput = 'Error: Log of zero undefined';
+            } else {
+                currentInput = Math.log10(num).toString();
+            }
+            updateDisplay();
+            shouldResetDisplay = true;
+        }
+
+        // Square
+        function calculateSquare() {
+            const num = parseFloat(currentInput);
+            if (isNaN(num)) {
+                currentInput = 'Error: Invalid Input';
+            } else {
+                currentInput = (num * num).toString();
+            }
+            updateDisplay();
+            shouldResetDisplay = true;
+        }
+
+        // Cubic
+        function calculateCubic() {
+            const num = parseFloat(currentInput);
+            if (isNaN(num)) {
+                currentInput = 'Error: Invalid Input';
+            } else {
+                currentInput = (num * num * num).toString();
+            }
+            updateDisplay();
+            shouldResetDisplay = true;
+        }
+        /* script.js content ends here */
+    </script>
+</body>
+
+</html>
